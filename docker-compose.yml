@@ -1,0 +1,23 @@
+name: db_app
+services:
+  db:
+    build: ./pgsql/
+    container_name: db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 3
+      timeout: 10s
+    networks:
+      - service-net
+  app :
+    build: ./app/
+    container_name: app
+    networks:
+      - service-net
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+networks:
+  service-net:
